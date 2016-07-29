@@ -6,29 +6,37 @@
         xmlns:local="clr-namespace:MultithreadingDemo"
         mc:Ignorable="d"
         Closing="Window_Closing"
-        Title="MainWindow" Height="350" Width="525">
+        Title="MainWindow" Height="350" Width="617">
     <Grid>
-        <Label x:Name="LB_SR" Content="共用資源目前在 :" HorizontalAlignment="Left" Margin="25,20,0,0" VerticalAlignment="Top" Width="105"/>
-        <Label x:Name="LB_SharedResources" Content="Free" HorizontalAlignment="Left" Height="26" Margin="130,20,0,0" VerticalAlignment="Top" Width="64"/>
-        <Label x:Name="LB_TA" Content="Thread A" HorizontalAlignment="Left" Height="24" Margin="26,160,0,0" VerticalAlignment="Top" Width="70"/>
-        <Label x:Name="LB_TB" Content="Thread B" HorizontalAlignment="Left" Height="24" Margin="26,200,0,0" VerticalAlignment="Top" Width="70"/>
-        <Label x:Name="LB_TC" Content="Thread C" HorizontalAlignment="Left" Height="24" Margin="26,240,0,0" VerticalAlignment="Top" Width="70"/>
-        <ProgressBar x:Name="PB_TA" HorizontalAlignment="Left" Height="24" Margin="120,160,0,0" VerticalAlignment="Top" Width="228"/>
-        <ProgressBar x:Name="PB_TB" HorizontalAlignment="Left" Height="24" Margin="120,200,0,0" VerticalAlignment="Top" Width="228"/>
-        <ProgressBar x:Name="PB_TC" HorizontalAlignment="Left" Height="24" Margin="120,240,0,0" VerticalAlignment="Top" Width="228"/>
-        <Button x:Name="Btn_Start" Content="Start" HorizontalAlignment="Left" Margin="412,262,0,0" VerticalAlignment="Top" Width="75" Click="Btn_Start_Click"/>
-        <StackPanel x:Name="SP_SR" HorizontalAlignment="Left" Height="66" Margin="35,50,0,0" VerticalAlignment="Top" Width="50" IsEnabled="False">
+        <Label x:Name="LB_SR" Content="共用資源目前在 :" HorizontalAlignment="Left" Margin="103,18,0,0" VerticalAlignment="Top" Width="105"/>
+        <Label x:Name="LB_SharedResources" Content="Free" HorizontalAlignment="Left" Height="26" Margin="208,18,0,0" VerticalAlignment="Top" Width="64"/>
+        <Label x:Name="LB_TA" Content="Thread A" HorizontalAlignment="Left" Height="24" Margin="267,160,0,0" VerticalAlignment="Top" Width="70"/>
+        <Label x:Name="LB_TB" Content="Thread B" HorizontalAlignment="Left" Height="24" Margin="267,200,0,0" VerticalAlignment="Top" Width="70"/>
+        <Label x:Name="LB_TC" Content="Thread C" HorizontalAlignment="Left" Height="24" Margin="267,240,0,0" VerticalAlignment="Top" Width="70"/>
+        <ProgressBar x:Name="PB_TA" HorizontalAlignment="Left" Height="24" Margin="361,160,0,0" VerticalAlignment="Top" Width="228"/>
+        <ProgressBar x:Name="PB_TB" HorizontalAlignment="Left" Height="24" Margin="361,200,0,0" VerticalAlignment="Top" Width="228"/>
+        <ProgressBar x:Name="PB_TC" HorizontalAlignment="Left" Height="24" Margin="361,240,0,0" VerticalAlignment="Top" Width="228"/>
+        <Button x:Name="Btn_Start" Content="Start" HorizontalAlignment="Left" Margin="447,65,0,0" VerticalAlignment="Top" Width="75" Click="Btn_Start_Click"/>
+        <StackPanel x:Name="SP_SR" HorizontalAlignment="Left" Height="66" Margin="113,48,0,0" VerticalAlignment="Top" Width="50" IsEnabled="False">
             <RadioButton x:Name="RB_A" Content="A" Checked="RB_A_Checked"/>
             <RadioButton x:Name="RB_B" Content="B" Checked="RB_B_Checked"/>
             <RadioButton x:Name="RB_C" Content="C" Checked="RB_C_Checked"/>
             <RadioButton x:Name="RB_Free" Content="Free" Checked="RB_Free_Checked" IsChecked="True"/>
         </StackPanel>
-        <Label x:Name="LB_20_50" Content="            ↑                  ↑" HorizontalAlignment="Left" Margin="120,269,0,0" VerticalAlignment="Top" Width="228" Height="28"/>
-        <StackPanel x:Name="SP_Mode" HorizontalAlignment="Left" Height="36" Margin="425,42,0,0" VerticalAlignment="Top" Width="60">
-            <RadioButton x:Name="RB_Demo" Content="Demo" Checked="RB_Demo_Checked" IsChecked="True"/>
-            <RadioButton x:Name="RB_Auto" Content="Auto" Checked="RB_Auto_Checked"/>
+        <Label x:Name="LB_20_50" Content="  連接  ↑ 共享資源 ↑     自己內部運算" HorizontalAlignment="Left" Margin="361,269,0,0" VerticalAlignment="Top" Width="228" Height="28"/>
+        <StackPanel x:Name="SP_Mode" HorizontalAlignment="Left" Height="36" Margin="18,45,0,0" VerticalAlignment="Top" Width="60">
+            <RadioButton x:Name="RB_Demo" Content="手動" Checked="RB_Demo_Checked" IsChecked="True"/>
+            <RadioButton x:Name="RB_Auto" Content="自動" Checked="RB_Auto_Checked"/>
         </StackPanel>
-        <Label x:Name="LB_Mode" Content="Mode" HorizontalAlignment="Left" Margin="425,16,0,0" VerticalAlignment="Top" Width="60"/>
+        <Label x:Name="LB_Mode" Content="Mode" HorizontalAlignment="Left" Margin="18,19,0,0" VerticalAlignment="Top" Width="60"/>
+        <ComboBox x:Name="CB_TB" HorizontalAlignment="Left" Margin="18,200,0,0" VerticalAlignment="Top" Width="120" Height="24" IsEnabled="False"/>
+        <ComboBox x:Name="CB_TA" HorizontalAlignment="Left" Margin="18,160,0,0" VerticalAlignment="Top" Width="120" Height="24" IsEnabled="False"/>
+        <ComboBox x:Name="CB_TC" HorizontalAlignment="Left" Margin="18,240,0,0" VerticalAlignment="Top" Width="120" Height="24" IsEnabled="False"/>
+        <Button x:Name="Btn_TA_connect" Content="連線" HorizontalAlignment="Left" Margin="165,160,0,0" VerticalAlignment="Top" Width="75" Click="Btn_TA_connect_Click" IsEnabled="False"/>
+        <Button x:Name="Btn_TB_connect" Content="連線" HorizontalAlignment="Left" Margin="165,200,0,0" VerticalAlignment="Top" Width="75" IsEnabled="False"/>
+        <Button x:Name="Btn_TC_connect" Content="連線" HorizontalAlignment="Left" Margin="165,240,0,0" VerticalAlignment="Top" Width="75" IsEnabled="False"/>
+        <Ellipse Fill="#FFF10505" HorizontalAlignment="Left" Height="150" Margin="406,138,0,0" Stroke="Black" VerticalAlignment="Top" Width="5"/>
+        <Ellipse Fill="#FFF10505" HorizontalAlignment="Left" Height="150" Margin="472,138,0,0" Stroke="Black" VerticalAlignment="Top" Width="5"/>
 
     </Grid>
 </Window>
