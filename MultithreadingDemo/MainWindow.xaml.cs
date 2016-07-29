@@ -18,29 +18,29 @@ namespace MultithreadingDemo
         private BackgroundWorker bwC = new BackgroundWorker();
 
         // 共享資源
-        enum SharedResources { Free, A, B, C };
-        SharedResources SR = SharedResources.Free;
+        private enum SharedResources { Free, A, B, C };
+        private SharedResources SR = SharedResources.Free;
         private BackgroundWorker bwSR = new BackgroundWorker();
 
         // 自動模式, 分派共享資源
         private bool IsAuto = false;
-        Queue<SharedResources> request = new Queue<SharedResources>();
+        private Queue<SharedResources> request = new Queue<SharedResources>();
 
         // ComPort端
-        enum ComPortStatus { Disconnect, Connected, Connecting};
-        ComPortStatus CPS_A = ComPortStatus.Disconnect;
-        ComPortStatus CPS_B = ComPortStatus.Disconnect;
-        ComPortStatus CPS_C = ComPortStatus.Disconnect;
-        SerialPort SP_A = new SerialPort();
-        SerialPort SP_B = new SerialPort();
-        SerialPort SP_C = new SerialPort();
-        string SP_A_Name = "";
-        string SP_B_Name = "";
-        string SP_C_Name = "";
+        private enum ComPortStatus { Disconnect, Connected, Connecting, ThreadEnd};
+        private ComPortStatus CPS_A = ComPortStatus.Disconnect;
+        private ComPortStatus CPS_B = ComPortStatus.Disconnect;
+        private ComPortStatus CPS_C = ComPortStatus.Disconnect;
+        private SerialPort SP_A = new SerialPort();
+        private SerialPort SP_B = new SerialPort();
+        private SerialPort SP_C = new SerialPort();
+        private string SP_A_Name = "";
+        private string SP_B_Name = "";
+        private string SP_C_Name = "";
 
         //USB隨插即用
-        USB ezUSB = new USB();
-        List<string> ComPortBox = new List<string>();
+        private USB ezUSB = new USB();
+        private List<string> ComPortBox = new List<string>();
 
         public MainWindow()
         {
@@ -51,7 +51,7 @@ namespace MultithreadingDemo
         }
 
         // BackgroundWorker 設定
-        void BW_Initialize() 
+        private void BW_Initialize() 
         {
             bwA.WorkerSupportsCancellation = true;
             bwA.DoWork += new DoWorkEventHandler(bwA_DoWork);
@@ -216,22 +216,25 @@ namespace MultithreadingDemo
             }
             else if (e.NewEvent.ClassPath.ClassName == "__InstanceDeletionEvent") // USB 拔出
             {
-                if(CPS_A == ComPortStatus.Disconnect && SP_A_Name != "")
+                if(CPS_A == ComPortStatus.ThreadEnd && SP_A_Name != "")
                 {
+                    CPS_A = ComPortStatus.Disconnect;
                     // 移除 ComPortBox 內的 ComPort
                     ComPortBox.Remove(SP_A_Name);
                     Console.WriteLine("USB拔出: " + SP_A_Name);
                     SP_A_Name = "";
                 }
-                else if(CPS_B == ComPortStatus.Disconnect && SP_B_Name != "")
+                else if(CPS_B == ComPortStatus.ThreadEnd && SP_B_Name != "")
                 {
+                    CPS_B = ComPortStatus.Disconnect;
                     // 移除 ComPortBox 內的 ComPort
                     ComPortBox.Remove(SP_B_Name);
                     Console.WriteLine("USB拔出: "+SP_B_Name);
                     SP_B_Name = "";
                 }
-                else if (CPS_C == ComPortStatus.Disconnect && SP_C_Name != "")
+                else if (CPS_C == ComPortStatus.ThreadEnd && SP_C_Name != "")
                 {
+                    CPS_B = ComPortStatus.Disconnect;
                     // 移除 ComPortBox 內的 ComPort
                     ComPortBox.Remove(SP_C_Name);
                     Console.WriteLine("USB拔出: " + SP_C_Name);
@@ -246,7 +249,7 @@ namespace MultithreadingDemo
 
         #region BackgroundWorker : A
 
-        void bwA_DoWork(object sender, DoWorkEventArgs e)
+        private void bwA_DoWork(object sender, DoWorkEventArgs e)
         {
             int i = 0;
             //耗時作業
@@ -334,7 +337,7 @@ namespace MultithreadingDemo
             bwA.ReportProgress(999);
         }
 
-        void bwA_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        private void bwA_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             this.Dispatcher.BeginInvoke((Action)(delegate
             {
@@ -354,7 +357,7 @@ namespace MultithreadingDemo
                             bwA.Dispose();
 
                             // 關閉 ComPort
-                            CPS_A = ComPortStatus.Disconnect;
+                            CPS_A = ComPortStatus.ThreadEnd;
                             Thread.Sleep(200);
                             SP_A.Close();
 
@@ -374,7 +377,7 @@ namespace MultithreadingDemo
 
         #region BackgroundWorker : B
 
-        void bwB_DoWork(object sender, DoWorkEventArgs e)
+        private void bwB_DoWork(object sender, DoWorkEventArgs e)
         {
             int i = 0;
             //耗時作業
@@ -461,7 +464,7 @@ namespace MultithreadingDemo
             bwB.ReportProgress(999);
         }
 
-        void bwB_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        private void bwB_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             this.Dispatcher.BeginInvoke((Action)(delegate
             {
@@ -481,7 +484,7 @@ namespace MultithreadingDemo
                             bwB.Dispose();
 
                             // 關閉 ComPort
-                            CPS_B = ComPortStatus.Disconnect;
+                            CPS_B = ComPortStatus.ThreadEnd;
                             Thread.Sleep(200);
                             SP_B.Close();
 
@@ -501,7 +504,7 @@ namespace MultithreadingDemo
 
         #region BackgroundWorker : C
 
-        void bwC_DoWork(object sender, DoWorkEventArgs e)
+        private void bwC_DoWork(object sender, DoWorkEventArgs e)
         {
             int i = 0;
             //耗時作業
@@ -588,7 +591,7 @@ namespace MultithreadingDemo
             bwC.ReportProgress(999);
         }
 
-        void bwC_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        private void bwC_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             this.Dispatcher.BeginInvoke((Action)(delegate
             {
@@ -608,7 +611,7 @@ namespace MultithreadingDemo
                             bwC.Dispose();
 
                             // 關閉 ComPort
-                            CPS_C = ComPortStatus.Disconnect;
+                            CPS_C = ComPortStatus.ThreadEnd;
                             Thread.Sleep(200);
                             SP_C.Close();
 
@@ -629,7 +632,7 @@ namespace MultithreadingDemo
         #region BackgroundWorker : 共享資源
         // 每0.2秒執行一次
 
-        void bwSR_DoWork(object sender, DoWorkEventArgs e)
+        private void bwSR_DoWork(object sender, DoWorkEventArgs e)
         {
             while(true)
             {
@@ -663,7 +666,7 @@ namespace MultithreadingDemo
             }
         }
 
-        void bwSR_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        private void bwSR_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             if((String)LB_SharedResources.Content != SR.ToString())
             {
@@ -673,7 +676,7 @@ namespace MultithreadingDemo
 
         #endregion
 
-        void Window_Closing(object sender, CancelEventArgs e)
+        private void Window_Closing(object sender, CancelEventArgs e)
         {
             // 關掉所有BackgroundWorker
             bwA.CancelAsync();

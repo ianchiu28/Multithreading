@@ -27,8 +27,8 @@
         <Label x:Name="LB_20_50_B" Content="  連接  ↑ 共享資源 ↑     自己內部運算" HorizontalAlignment="Left" Margin="320,250,0,0" VerticalAlignment="Top" Width="228" Height="28"/>
         <Label x:Name="LB_20_50_C" Content="  連接  ↑ 共享資源 ↑     自己內部運算" HorizontalAlignment="Left" Margin="570,250,0,0" VerticalAlignment="Top" Width="228" Height="28"/>
         <StackPanel x:Name="SP_Mode" HorizontalAlignment="Left" Height="36" Margin="10,36,0,0" VerticalAlignment="Top" Width="60">
-            <RadioButton x:Name="RB_Demo" Content="手動" Checked="RB_Demo_Checked" IsChecked="True"/>
-            <RadioButton x:Name="RB_Auto" Content="自動" Checked="RB_Auto_Checked"/>
+            <RadioButton x:Name="RB_Demo" Content="手動" Checked="RB_Demo_Checked"/>
+            <RadioButton x:Name="RB_Auto" Content="自動" Checked="RB_Auto_Checked" IsChecked="True"/>
         </StackPanel>
         <Label x:Name="LB_Mode" Content="Mode" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="60"/>
         <Ellipse Fill="#FFF10505" HorizontalAlignment="Left" Height="25" Margin="115,220,0,0" Stroke="Black" VerticalAlignment="Top" Width="5"/>
