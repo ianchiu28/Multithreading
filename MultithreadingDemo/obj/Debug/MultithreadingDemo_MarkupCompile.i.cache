@@ -4,17 +4,17 @@
 exe
 C#
 .cs
-D:\1. Ian Chiu\VS Project\Multithreading\MultithreadingDemo_ComPort_A&B\MultithreadingDemo\obj\Debug\
+D:\1. Ian Chiu\VS Project\Multithreading\MultithreadingDemo_ComPort_A&B_AutoConnect\MultithreadingDemo\obj\Debug\
 MultithreadingDemo
 none
 false
 DEBUG;TRACE
-D:\1. Ian Chiu\VS Project\Multithreading\MultithreadingDemo_ComPort_A&B\MultithreadingDemo\App.xaml
+D:\1. Ian Chiu\VS Project\Multithreading\MultithreadingDemo_ComPort_A&B_AutoConnect\MultithreadingDemo\App.xaml
 11151548125
 
 9-1311310826
 13738642453
 MainWindow.xaml;
 
-True
+False
 

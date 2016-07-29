@@ -16,6 +16,7 @@ using System.ComponentModel;
 using System.Threading;
 using System.IO.Ports;
 using System.IO;
+using System.Diagnostics;
 
 namespace MultithreadingDemo
 {
@@ -49,6 +50,11 @@ namespace MultithreadingDemo
         SerialPort SP_C = new SerialPort();
         BackgroundWorker bwCP = new BackgroundWorker();
 
+        // 自動連線
+        BackgroundWorker bwAuto = new BackgroundWorker();
+        string SP_A_Name;
+        string SP_B_Name;
+        string SP_C_Name;
 
         public MainWindow()
         {
@@ -78,6 +84,63 @@ namespace MultithreadingDemo
             bwCP.WorkerSupportsCancellation = true;
             bwCP.DoWork += new DoWorkEventHandler(bwCP_DoWork);
             bwCP.ProgressChanged += new ProgressChangedEventHandler(bwCP_ProgressChanged);
+
+            bwAuto.WorkerSupportsCancellation = true;
+            bwAuto.DoWork += BwAuto_DoWork;
+            bwAuto.ProgressChanged += BwAuto_ProgressChanged;
+        }
+
+        private void BwAuto_DoWork(object sender, DoWorkEventArgs e)
+        {
+            while(true)
+            {
+                if (CPS_A == ComPortStatus.Disconnect)
+                {
+                    if (!SP_A.IsOpen)
+                    {
+                        try
+                        {
+                            // 連接ComPort
+                            SP_A.PortName = SP_A_Name;
+                            SP_A.BaudRate = 9600;
+                            SP_A.DataBits = 8;
+                            SP_A.Parity = System.IO.Ports.Parity.None;
+                            SP_A.StopBits = System.IO.Ports.StopBits.One;
+                            SP_A.Encoding = Encoding.ASCII;//傳輸編碼方式
+                            SP_A.Open();
+                            SP_A.DtrEnable = true;
+
+                            // 執行 BackgroundWorker
+                            if (bwA.IsBusy != true)
+                            {
+                                bwA.WorkerReportsProgress = true;
+                                bwA.RunWorkerAsync();
+                            }
+
+                            bwAuto.ReportProgress(0);
+
+                            // 傳送連線指令
+                            SP_A.Write(@"z"); // 檢查是不是DHC的裝置
+                        }
+                        catch (Exception ex)
+                        {
+                            //System.Windows.MessageBox.Show("通訊埠不存在，請檢查是否尚未開啟治具上的USB開關?\n\n如果已開啟的話''請重複一次USB關閉再開啟''\n\n\n" + ex.ToString());
+                            Thread.Sleep(1000);
+                        }
+                    }
+                }
+                else
+                {
+                    Thread.Sleep(1000);
+                }
+            }
+        }
+
+        private void BwAuto_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            // 連線按鈕更改
+            Btn_TA_connect.IsEnabled = false;
+            Btn_TA_connect.Content = "連線中";
         }
 
         #region BackgroundWorker : ComPort
@@ -188,8 +251,8 @@ namespace MultithreadingDemo
 
                                 for (; i < 20; i++)
                                 {
-                                    bwA.ReportProgress(i);
                                     Thread.Sleep(100);
+                                    bwA.ReportProgress(i);
                                 }
                             }
                             Thread.Sleep(100);
@@ -243,9 +306,52 @@ namespace MultithreadingDemo
 
         void bwA_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            if (e.ProgressPercentage <= 100) // 更新進度條
+            this.Dispatcher.BeginInvoke((Action)(delegate
             {
-                PB_TA.Value = e.ProgressPercentage;
+                if (e.ProgressPercentage <= 100) // 更新進度條
+                {
+                    PB_TA.Value = e.ProgressPercentage;
+                }
+                if (CPS_A == ComPortStatus.Connected && CB_TA.IsEnabled == true) // 連線中, 關閉下拉式選單
+                {
+                    CB_TA.IsEnabled = false;
+                }
+                if (e.ProgressPercentage == 999) // 達成斷線條件
+                {
+                    Btn_TA_connect.IsEnabled = true;
+
+                    if (SP_A.IsOpen)
+                    {
+                        try
+                        {
+                            // 關閉 BackgroundWorker
+                            bwA.CancelAsync();
+                            bwA.WorkerReportsProgress = false;
+                            bwA.Dispose();
+
+                            // 關閉 ComPort
+                            CPS_A = ComPortStatus.Disconnect;
+                            Thread.Sleep(200);
+                            SP_A.Close();
+
+                            // UI 更新
+                            PB_TA.Value = 0;
+                            Btn_TA_connect.Content = "連線";
+                            CB_TA.IsEnabled = true;
+                        }
+                        catch (IOException ex)
+                        {
+                            System.Windows.MessageBox.Show("通訊埠不存在，請檢查是否已先行關閉治具上的USB開關?\n\n\n" + ex.ToString());
+                        }
+                    }
+                }
+            }));
+            /*if (e.ProgressPercentage <= 100) // 更新進度條
+            {
+                this.Dispatcher.BeginInvoke((Action)(delegate
+                {
+                    PB_TA.Value = e.ProgressPercentage;
+                }));
             }
             if (CPS_A == ComPortStatus.Connected && CB_TA.IsEnabled == true) // 連線中, 關閉下拉式選單
             {
@@ -254,8 +360,32 @@ namespace MultithreadingDemo
             if (e.ProgressPercentage == 999) // 達成斷線條件
             {
                 Btn_TA_connect.IsEnabled = true;
-                Btn_TA_connect.Content = "斷線";
-            }
+
+                if (SP_A.IsOpen)
+                {
+                    try
+                    {
+                        // 關閉 BackgroundWorker
+                        bwA.CancelAsync();
+                        bwA.WorkerReportsProgress = false;
+                        bwA.Dispose();
+
+                        // 關閉 ComPort
+                        CPS_A = ComPortStatus.Disconnect;
+                        Thread.Sleep(200);
+                        SP_A.Close();
+
+                        // UI 更新
+                        PB_TA.Value = 0;
+                        Btn_TA_connect.Content = "連線";
+                        CB_TA.IsEnabled = true;
+                    }
+                    catch (IOException ex)
+                    {
+                        System.Windows.MessageBox.Show("通訊埠不存在，請檢查是否已先行關閉治具上的USB開關?\n\n\n" + ex.ToString());
+                    }
+                }
+            }*/
         }
 
         #endregion
@@ -520,10 +650,12 @@ namespace MultithreadingDemo
                 bwC.WorkerReportsProgress = true; //**
                 bwSR.WorkerReportsProgress = true;
                 bwCP.WorkerReportsProgress = true;
+                bwAuto.WorkerReportsProgress = true; //********
                 
                 bwC.RunWorkerAsync(); //**
                 bwSR.RunWorkerAsync();
                 bwCP.RunWorkerAsync();
+                bwAuto.RunWorkerAsync(); //******
 
                 // UI 更新
                 this.Dispatcher.Invoke((Action)(delegate ()
@@ -680,69 +812,9 @@ namespace MultithreadingDemo
 
         private void Btn_TA_connect_Click(object sender, RoutedEventArgs e)
         {
-            if((String)Btn_TA_connect.Content == "連線")
-            {
-                if (!SP_A.IsOpen)
-                {
-                    try
-                    {
-                        // 連接ComPort
-                        SP_A.PortName = CB_TA.Text;
-                        SP_A.BaudRate = 9600;
-                        SP_A.DataBits = 8;
-                        SP_A.Parity = System.IO.Ports.Parity.None;
-                        SP_A.StopBits = System.IO.Ports.StopBits.One;
-                        SP_A.Encoding = Encoding.ASCII;//傳輸編碼方式
-                        SP_A.Open();
-                        SP_A.DtrEnable = true;
-
-                        // 執行 BackgroundWorker
-                        if (bwA.IsBusy != true)
-                        {
-                            bwA.WorkerReportsProgress = true;
-                            bwA.RunWorkerAsync();
-                        }
-
-                        // 連線按鈕更改
-                        Btn_TA_connect.IsEnabled = false;
-                        Btn_TA_connect.Content = "連線中";
-
-                        // 傳送連線指令
-                        SP_A.Write(@"z"); // 檢查是不是DHC的裝置
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Windows.MessageBox.Show("通訊埠不存在，請檢查是否尚未開啟治具上的USB開關?\n\n如果已開啟的話''請重複一次USB關閉再開啟''\n\n\n" + ex.ToString());
-                    }
-                }
-            }
-            else if((String)Btn_TA_connect.Content == "斷線")
-            {
-                if(SP_A.IsOpen)
-                {
-                    try
-                    {
-                        // 關閉 BackgroundWorker
-                        bwA.CancelAsync();
-                        bwA.WorkerReportsProgress = false;
-                        bwA.Dispose();
-
-                        // 關閉 ComPort
-                        CPS_A = ComPortStatus.Disconnect;
-                        Thread.Sleep(200);
-                        SP_A.Close();
-
-                        // UI 更新
-                        PB_TA.Value = 0;
-                        Btn_TA_connect.Content = "連線";
-                        CB_TA.IsEnabled = true;
-                    }
-                    catch(IOException ex)
-                    {
-                        System.Windows.MessageBox.Show("通訊埠不存在，請檢查是否已先行關閉治具上的USB開關?\n\n\n" + ex.ToString());
-                    }
-                }
-            }
+            SP_A_Name = CB_TA.Text;
+            CB_TA.IsEnabled = false;
+            Btn_TA_connect.IsEnabled = false;
         }
 
         private void Btn_TB_connect_Click(object sender, RoutedEventArgs e)
