@@ -6,37 +6,26 @@
         xmlns:local="clr-namespace:MultithreadingDemo"
         mc:Ignorable="d"
         Closing="Window_Closing"
-        Title="MainWindow" Height="350" Width="900">
+        Title="MainWindow" Height="250" Width="800">
     <Grid>
-        <Label x:Name="LB_SR" Content="共用資源目前在 :" HorizontalAlignment="Left" Margin="62,9,0,0" VerticalAlignment="Top" Width="105"/>
-        <Label x:Name="LB_SharedResources" Content="Free" HorizontalAlignment="Left" Height="26" Margin="156,9,0,0" VerticalAlignment="Top" Width="64"/>
-        <Label x:Name="LB_TA" Content="Thread A" HorizontalAlignment="Left" Height="24" Margin="150,140,0,0" VerticalAlignment="Top" Width="70"/>
-        <Label x:Name="LB_TB" Content="Thread B" HorizontalAlignment="Left" Height="24" Margin="400,140,0,0" VerticalAlignment="Top" Width="70"/>
-        <Label x:Name="LB_TC" Content="Thread C" HorizontalAlignment="Left" Height="24" Margin="650,140,0,0" VerticalAlignment="Top" Width="70"/>
-        <ProgressBar x:Name="PB_TA" HorizontalAlignment="Left" Height="24" Margin="70,220,0,0" VerticalAlignment="Top" Width="228" RenderTransformOrigin="0.5,0.5"/>
-        <ProgressBar x:Name="PB_TB" HorizontalAlignment="Left" Height="24" Margin="320,220,0,0" VerticalAlignment="Top" Width="228"/>
-        <ProgressBar x:Name="PB_TC" HorizontalAlignment="Left" Height="24" Margin="570,220,-16,0" VerticalAlignment="Top" Width="228"/>
-        <Button x:Name="Btn_Start" Content="Start" HorizontalAlignment="Left" Margin="763,39,0,0" VerticalAlignment="Top" Width="75" Click="Btn_Start_Click"/>
-        <StackPanel x:Name="SP_SR" HorizontalAlignment="Left" Height="66" Margin="72,39,0,0" VerticalAlignment="Top" Width="50" IsEnabled="False">
-            <RadioButton x:Name="RB_A" Content="A" Checked="RB_A_Checked"/>
-            <RadioButton x:Name="RB_B" Content="B" Checked="RB_B_Checked"/>
-            <RadioButton x:Name="RB_C" Content="C" Checked="RB_C_Checked"/>
-            <RadioButton x:Name="RB_Free" Content="Free" Checked="RB_Free_Checked" IsChecked="True"/>
-        </StackPanel>
-        <Label x:Name="LB_20_50_A" Content="  連接  ↑ 共享資源 ↑     自己內部運算" HorizontalAlignment="Left" Margin="70,250,0,0" VerticalAlignment="Top" Width="228" Height="28"/>
-        <Label x:Name="LB_20_50_B" Content="  連接  ↑ 共享資源 ↑     自己內部運算" HorizontalAlignment="Left" Margin="320,250,0,0" VerticalAlignment="Top" Width="228" Height="28"/>
-        <Label x:Name="LB_20_50_C" Content="  連接  ↑ 共享資源 ↑     自己內部運算" HorizontalAlignment="Left" Margin="570,250,0,0" VerticalAlignment="Top" Width="228" Height="28"/>
-        <StackPanel x:Name="SP_Mode" HorizontalAlignment="Left" Height="36" Margin="10,36,0,0" VerticalAlignment="Top" Width="60">
-            <RadioButton x:Name="RB_Demo" Content="手動" Checked="RB_Demo_Checked"/>
-            <RadioButton x:Name="RB_Auto" Content="自動" Checked="RB_Auto_Checked" IsChecked="True"/>
-        </StackPanel>
-        <Label x:Name="LB_Mode" Content="Mode" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="60"/>
-        <Ellipse Fill="#FFF10505" HorizontalAlignment="Left" Height="25" Margin="115,220,0,0" Stroke="Black" VerticalAlignment="Top" Width="5"/>
-        <Ellipse Fill="#FFF10505" HorizontalAlignment="Left" Height="25" Margin="180,220,0,0" Stroke="Black" VerticalAlignment="Top" Width="5"/>
-        <Ellipse Fill="#FFF10505" HorizontalAlignment="Left" Height="25" Margin="365,220,0,0" Stroke="Black" VerticalAlignment="Top" Width="5"/>
-        <Ellipse Fill="#FFF10505" HorizontalAlignment="Left" Height="25" Margin="430,220,0,0" Stroke="Black" VerticalAlignment="Top" Width="5"/>
-        <Ellipse Fill="#FFF10505" HorizontalAlignment="Left" Height="25" Margin="615,220,0,0" Stroke="Black" VerticalAlignment="Top" Width="5"/>
-        <Ellipse Fill="#FFF10505" HorizontalAlignment="Left" Height="25" Margin="680,220,0,0" Stroke="Black" VerticalAlignment="Top" Width="5"/>
+        <Label x:Name="LB_SR" Content="共用資源目前在 :" HorizontalAlignment="Left" Margin="16,10,0,0" VerticalAlignment="Top" Width="105"/>
+        <Label x:Name="LB_SharedResources" Content="Free" HorizontalAlignment="Left" Height="26" Margin="110,10,0,0" VerticalAlignment="Top" Width="64"/>
+        <Label x:Name="LB_TA" Content="Thread A" HorizontalAlignment="Left" Height="24" Margin="110,70,0,0" VerticalAlignment="Top" Width="70"/>
+        <Label x:Name="LB_TB" Content="Thread B" HorizontalAlignment="Left" Height="24" Margin="360,70,0,0" VerticalAlignment="Top" Width="70"/>
+        <Label x:Name="LB_TC" Content="Thread C" HorizontalAlignment="Left" Height="24" Margin="610,70,0,0" VerticalAlignment="Top" Width="70"/>
+        <ProgressBar x:Name="PB_TA" HorizontalAlignment="Left" Height="24" Margin="30,120,0,0" VerticalAlignment="Top" Width="228" RenderTransformOrigin="0.5,0.5"/>
+        <ProgressBar x:Name="PB_TB" HorizontalAlignment="Left" Height="24" Margin="280,120,0,0" VerticalAlignment="Top" Width="228"/>
+        <ProgressBar x:Name="PB_TC" HorizontalAlignment="Left" Height="24" Margin="530,120,0,0" VerticalAlignment="Top" Width="228"/>
+        <Button x:Name="Btn_Restart" Content="Restart" HorizontalAlignment="Left" Margin="707,10,0,0" VerticalAlignment="Top" Width="75" Click="Btn_Restart_Click"/>
+        <Label x:Name="LB_20_50_A" Content="  連接  ↑ 共享資源 ↑     自己內部運算" HorizontalAlignment="Left" Margin="30,150,0,0" VerticalAlignment="Top" Width="228" Height="28"/>
+        <Label x:Name="LB_20_50_B" Content="  連接  ↑ 共享資源 ↑     自己內部運算" HorizontalAlignment="Left" Margin="280,150,0,0" VerticalAlignment="Top" Width="228" Height="28"/>
+        <Label x:Name="LB_20_50_C" Content="  連接  ↑ 共享資源 ↑     自己內部運算" HorizontalAlignment="Left" Margin="530,150,0,0" VerticalAlignment="Top" Width="228" Height="28"/>
+        <Ellipse Fill="#FFF10505" HorizontalAlignment="Left" Height="25" Margin="75,120,0,0" Stroke="Black" VerticalAlignment="Top" Width="5"/>
+        <Ellipse Fill="#FFF10505" HorizontalAlignment="Left" Height="25" Margin="140,120,0,0" Stroke="Black" VerticalAlignment="Top" Width="5"/>
+        <Ellipse Fill="#FFF10505" HorizontalAlignment="Left" Height="25" Margin="325,120,0,0" Stroke="Black" VerticalAlignment="Top" Width="5"/>
+        <Ellipse Fill="#FFF10505" HorizontalAlignment="Left" Height="25" Margin="390,120,0,0" Stroke="Black" VerticalAlignment="Top" Width="5"/>
+        <Ellipse Fill="#FFF10505" HorizontalAlignment="Left" Height="25" Margin="575,120,0,0" Stroke="Black" VerticalAlignment="Top" Width="5"/>
+        <Ellipse Fill="#FFF10505" HorizontalAlignment="Left" Height="25" Margin="640,120,0,0" Stroke="Black" VerticalAlignment="Top" Width="5"/>
 
     </Grid>
 </Window>

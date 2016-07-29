@@ -22,8 +22,7 @@ namespace MultithreadingDemo
         private SharedResources SR = SharedResources.Free;
         private BackgroundWorker bwSR = new BackgroundWorker();
 
-        // 自動模式, 分派共享資源
-        private bool IsAuto = false;
+        // 分派共享資源
         private Queue<SharedResources> request = new Queue<SharedResources>();
 
         // ComPort端
@@ -41,11 +40,16 @@ namespace MultithreadingDemo
         //USB隨插即用
         private USB ezUSB = new USB();
         private List<string> ComPortBox = new List<string>();
+        private Queue<string> ComPortQ = new Queue<string>();
 
         public MainWindow()
         {
             InitializeComponent();
-   
+
+            // 執行背景BackgroundWorker : 共享資源
+            bwSR.WorkerReportsProgress = true;
+            bwSR.RunWorkerAsync();
+
             BW_Initialize();
             USB_Initialize();
         }
@@ -89,18 +93,21 @@ namespace MultithreadingDemo
             if (e.NewEvent.ClassPath.ClassName == "__InstanceCreationEvent") // USB 插入
             {
                 // 偵測現在是哪個ComPort進來
-                string CP_now = "";
+                //******string CP_now = "";
                 foreach (var com in SerialPort.GetPortNames())
                 {
                     if (!ComPortBox.Contains(com))
                     {
                         ComPortBox.Add(com);
-                        CP_now = com;
+                        //******CP_now = com;
+                        ComPortQ.Enqueue(com);
+                        Console.WriteLine("USB插入: " + com);
                     }
                 }
 
                 // 看哪個 Thread 未連接, 就分派給他
-                if (CPS_A == ComPortStatus.Disconnect && CP_now != "")
+                //******if (CPS_A == ComPortStatus.Disconnect && CP_now != "")
+                if (CPS_A == ComPortStatus.Disconnect && ComPortQ.Count != 0)
                 {
                     CPS_A = ComPortStatus.Connecting;
                     if (!SP_A.IsOpen)
@@ -108,7 +115,8 @@ namespace MultithreadingDemo
                         try
                         {
                             //CPS_A = ComPortStatus.Connecting;
-                            SP_A_Name = CP_now;
+                            //******SP_A_Name = CP_now;
+                            SP_A_Name = ComPortQ.Dequeue();
                             // 連接ComPort
                             SP_A.PortName = SP_A_Name;
                             SP_A.BaudRate = 9600;
@@ -136,7 +144,7 @@ namespace MultithreadingDemo
                         }
                     }
                 }
-                else if (CPS_B == ComPortStatus.Disconnect && CP_now != "")
+                else if (CPS_B == ComPortStatus.Disconnect && ComPortQ.Count != 0)
                 {
                     CPS_B = ComPortStatus.Connecting;
                     if (!SP_B.IsOpen)
@@ -144,7 +152,7 @@ namespace MultithreadingDemo
                         try
                         {
                             //CPS_B = ComPortStatus.Connecting;
-                            SP_B_Name = CP_now;
+                            SP_B_Name = ComPortQ.Dequeue();
                             // 連接ComPort
                             SP_B.PortName = SP_B_Name;
                             SP_B.BaudRate = 9600;
@@ -172,7 +180,7 @@ namespace MultithreadingDemo
                         }
                     }
                 }
-                else if (CPS_C == ComPortStatus.Disconnect && CP_now != "")
+                else if (CPS_C == ComPortStatus.Disconnect && ComPortQ.Count != 0)
                 {
                     CPS_C = ComPortStatus.Connecting;
                     if (!SP_C.IsOpen)
@@ -180,7 +188,7 @@ namespace MultithreadingDemo
                         try
                         {
                             //CPS_C = ComPortStatus.Connecting;
-                            SP_C_Name = CP_now;
+                            SP_C_Name = ComPortQ.Dequeue();
                             // 連接ComPort
                             SP_C.PortName = SP_C_Name;
                             SP_C.BaudRate = 9600;
@@ -210,9 +218,9 @@ namespace MultithreadingDemo
                 }
                 else
                 {
-                    Console.WriteLine("SCAN ERROR " + CP_now);
+                    Console.WriteLine("All threads are busy!!");
                 }
-                Console.WriteLine("USB插入: " + CP_now);
+                //******Console.WriteLine("USB插入");
             }
             else if (e.NewEvent.ClassPath.ClassName == "__InstanceDeletionEvent") // USB 拔出
             {
@@ -266,6 +274,13 @@ namespace MultithreadingDemo
                     {
                         if(i < 20) // 連接ComPort階段
                         {
+                            if (i < 15) // USB一偵測即跑Progress Bar
+                            {
+                                i++;
+                                bwA.ReportProgress(i);
+                                Thread.Sleep(100);
+                            }
+
                             if (SP_A.BytesToRead != 0)
                             {
                                 string msg = SP_A.ReadExisting();
@@ -304,25 +319,19 @@ namespace MultithreadingDemo
                                 Thread.Sleep(100);
                                 bwA.ReportProgress(i);
 
-                                if (IsAuto) // 自動模式
+                                if (i > 50) // 共用資源階段結束, 釋放資源
                                 {
-                                    if (i > 50) // 共用資源階段結束, 釋放資源
-                                    {
-                                        SR = SharedResources.Free;
-                                    }
+                                    SR = SharedResources.Free;
                                 }
                             }
                             else // 沒得到共用資源
                             {
-                                if (IsAuto) // 自動模式
+                                if (!request.Contains(SharedResources.A)) // 如果還沒提出需求, 就提出需求
                                 {
-                                    if (!request.Contains(SharedResources.A)) // 如果還沒提出需求, 就提出需求
-                                    {
-                                        request.Enqueue(SharedResources.A);
-                                        Console.WriteLine("Request! A");
-                                    }
+                                    request.Enqueue(SharedResources.A);
+                                    Console.WriteLine("Request! A");
                                 }
-                                
+
                                 Thread.Sleep(200);
                             }
                         }
@@ -394,6 +403,13 @@ namespace MultithreadingDemo
                     {
                         if (i < 20) // 連接ComPort階段
                         {
+                            if (i < 15) // USB一偵測即跑Progress Bar
+                            {
+                                i++;
+                                bwB.ReportProgress(i);
+                                Thread.Sleep(100);
+                            }
+
                             if (SP_B.BytesToRead != 0)
                             {
                                 string msg = SP_B.ReadExisting();
@@ -432,24 +448,19 @@ namespace MultithreadingDemo
                                 Thread.Sleep(100);
                                 bwB.ReportProgress(i);
 
-                                if (IsAuto) // 自動模式
+                                if (i > 50) // 共用資源階段結束, 釋放資源
                                 {
-                                    if (i > 50) // 共用資源階段結束, 釋放資源
-                                    {
-                                        SR = SharedResources.Free;
-                                    }
+                                    SR = SharedResources.Free;
                                 }
                             }
                             else // 沒得到共用資源
                             {
-                                if (IsAuto) // 自動模式
+                                if (!request.Contains(SharedResources.B)) // 如果還沒提出需求, 就提出需求
                                 {
-                                    if (!request.Contains(SharedResources.B)) // 如果還沒提出需求, 就提出需求
-                                    {
-                                        request.Enqueue(SharedResources.B);
-                                        Console.WriteLine("Request! B");
-                                    }
+                                    request.Enqueue(SharedResources.B);
+                                    Console.WriteLine("Request! B");
                                 }
+
                                 Thread.Sleep(200);
                             }
                         }
@@ -521,6 +532,13 @@ namespace MultithreadingDemo
                     {
                         if (i < 20) // 連接ComPort階段
                         {
+                            if (i < 15) // USB一偵測即跑Progress Bar
+                            {
+                                i++;
+                                bwC.ReportProgress(i);
+                                Thread.Sleep(100);
+                            }
+
                             if (SP_C.BytesToRead != 0)
                             {
                                 string msg = SP_C.ReadExisting();
@@ -559,24 +577,19 @@ namespace MultithreadingDemo
                                 Thread.Sleep(100);
                                 bwC.ReportProgress(i);
 
-                                if (IsAuto) // 自動模式
+                                if (i > 50) // 共用資源階段結束, 釋放資源
                                 {
-                                    if (i > 50) // 共用資源階段結束, 釋放資源
-                                    {
-                                        SR = SharedResources.Free;
-                                    }
+                                    SR = SharedResources.Free;
                                 }
                             }
                             else // 沒得到共用資源
                             {
-                                if (IsAuto) // 自動模式
+                                if (!request.Contains(SharedResources.C)) // 如果還沒提出需求, 就提出需求
                                 {
-                                    if (!request.Contains(SharedResources.C)) // 如果還沒提出需求, 就提出需求
-                                    {
-                                        request.Enqueue(SharedResources.C);
-                                        Console.WriteLine("Request! C");
-                                    }
+                                    request.Enqueue(SharedResources.C);
+                                    Console.WriteLine("Request! C");
                                 }
+
                                 Thread.Sleep(200);
                             }
                         }
@@ -645,13 +658,10 @@ namespace MultithreadingDemo
                 {
                     try
                     {
-                        if (IsAuto) // 自動模式
+                        if (SR == SharedResources.Free && request.Count != 0) // 如果共用資源處在沒人用的狀態且有thread提出需求, 分配給第一個提出需求的thread
                         {
-                            if(SR == SharedResources.Free && request.Count != 0) // 如果共用資源處在沒人用的狀態且有thread提出需求, 分配給第一個提出需求的thread
-                            {
-                                SR = request.Dequeue();
-                                Console.WriteLine("\t\tDeQueue! {0}",SR);
-                            }
+                            SR = request.Dequeue();
+                            Console.WriteLine("\t\tDeQueue! {0}", SR);
                         }
 
                         bwSR.ReportProgress(0); // 更新共享資源位置
@@ -695,73 +705,11 @@ namespace MultithreadingDemo
             bwSR.Dispose();
         }
 
-        private void Btn_Start_Click(object sender, RoutedEventArgs e)
+        private void Btn_Restart_Click(object sender, RoutedEventArgs e)
         {
-            if((String)Btn_Start.Content == "Start") // 按下start
-            {
-                // 執行背景BackgroundWorker : 共享資源
-                bwSR.WorkerReportsProgress = true;
-                bwSR.RunWorkerAsync();
-
-                // UI 更新
-                this.Dispatcher.Invoke((Action)(delegate ()
-                {
-                    Btn_Start.Content = "Reset";
-                    SP_Mode.IsEnabled = false;
-                }));
-            }
-            else // 按下reset
-            {
-                // 重起再開
-                System.Diagnostics.Process.Start(Application.ResourceAssembly.Location);
-                Application.Current.Shutdown();
-            }
+            // 重起再開
+            System.Diagnostics.Process.Start(Application.ResourceAssembly.Location);
+            Application.Current.Shutdown();
         }
-
-        #region RadioButton : 共享資源
-
-        private void RB_A_Checked(object sender, RoutedEventArgs e)
-        {
-            SR = SharedResources.A;
-        }
-
-        private void RB_B_Checked(object sender, RoutedEventArgs e)
-        {
-            SR = SharedResources.B;
-        }
-
-        private void RB_C_Checked(object sender, RoutedEventArgs e)
-        {
-            SR = SharedResources.C;
-        }
-
-        private void RB_Free_Checked(object sender, RoutedEventArgs e)
-        {
-            SR = SharedResources.Free;
-        }
-
-        #endregion
-
-        #region RadioButton : Mode
-
-        private void RB_Demo_Checked(object sender, RoutedEventArgs e)
-        {
-            IsAuto = false;
-            this.Dispatcher.Invoke((Action)(delegate ()
-            {
-                SP_SR.IsEnabled = true; // 關閉共享資源的選擇
-            }));
-        }
-
-        private void RB_Auto_Checked(object sender, RoutedEventArgs e)
-        {
-            IsAuto = true;
-            this.Dispatcher.Invoke((Action)(delegate ()
-            {
-                SP_SR.IsEnabled = false; // 關閉共享資源的選擇
-            }));
-        }
-
-        #endregion
     }
 }
