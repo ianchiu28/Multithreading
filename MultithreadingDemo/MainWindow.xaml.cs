@@ -1,37 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.ComponentModel;
 using System.Threading;
 using System.IO.Ports;
 using System.IO;
-using System.Diagnostics;
 using System.Management;
-
-
-/**
- * this.Dispatcher.BeginInvoke((Action)(delegate
-            {
-            }));
- */
 
 namespace MultithreadingDemo
 {
-    /// <summary>
-    /// MainWindow.xaml 的互動邏輯
-    /// </summary>
-
     public partial class MainWindow : Window
     {
         // 三條thread
@@ -56,8 +34,6 @@ namespace MultithreadingDemo
         SerialPort SP_A = new SerialPort();
         SerialPort SP_B = new SerialPort();
         SerialPort SP_C = new SerialPort();
-
-        // 自動連線
         string SP_A_Name = "";
         string SP_B_Name = "";
         string SP_C_Name = "";
@@ -71,7 +47,34 @@ namespace MultithreadingDemo
             InitializeComponent();
    
             BW_Initialize();
+            USB_Initialize();
+        }
+
+        // BackgroundWorker 設定
+        void BW_Initialize() 
+        {
+            bwA.WorkerSupportsCancellation = true;
+            bwA.DoWork += new DoWorkEventHandler(bwA_DoWork);
+            bwA.ProgressChanged += new ProgressChangedEventHandler(bwA_ProgressChanged);
+
+            bwB.WorkerSupportsCancellation = true;
+            bwB.DoWork += new DoWorkEventHandler(bwB_DoWork);
+            bwB.ProgressChanged += new ProgressChangedEventHandler(bwB_ProgressChanged);
+
+            bwC.WorkerSupportsCancellation = true;
+            bwC.DoWork += new DoWorkEventHandler(bwC_DoWork);
+            bwC.ProgressChanged += new ProgressChangedEventHandler(bwC_ProgressChanged);
+
+            bwSR.WorkerSupportsCancellation = true;
+            bwSR.DoWork += new DoWorkEventHandler(bwSR_DoWork);
+            bwSR.ProgressChanged += new ProgressChangedEventHandler(bwSR_ProgressChanged);
+        }
+
+        private void USB_Initialize() 
+        {
             ezUSB.AddUSBEventWatcher(USBEventHandler, USBEventHandler, new TimeSpan(0, 0, 3));
+
+            // 先讀取電腦內建ComPort, 加入名單, 避免誤讀
             foreach (var com in SerialPort.GetPortNames())
             {
                 if (!ComPortBox.Contains(com))
@@ -123,13 +126,6 @@ namespace MultithreadingDemo
                                 bwA.RunWorkerAsync();
                             }
 
-                            this.Dispatcher.BeginInvoke((Action)(delegate
-                            {
-                                Btn_TA_connect.IsEnabled = false;
-                                Btn_TA_connect.Content = "連線中";
-                                
-                            }));
-
                             // 傳送連線指令
                             SP_A.Write(@"z"); // 檢查是不是DHC的裝置
                         }
@@ -166,13 +162,6 @@ namespace MultithreadingDemo
                                 bwB.RunWorkerAsync(); 
                             }
 
-                            this.Dispatcher.BeginInvoke((Action)(delegate
-                            {
-                                Btn_TB_connect.IsEnabled = false;
-                                Btn_TB_connect.Content = "連線中";
-
-                            }));
-
                             // 傳送連線指令
                             SP_B.Write(@"z"); // 檢查是不是DHC的裝置
                         }
@@ -208,13 +197,6 @@ namespace MultithreadingDemo
                                 bwC.WorkerReportsProgress = true;
                                 bwC.RunWorkerAsync();
                             }
-
-                            this.Dispatcher.BeginInvoke((Action)(delegate
-                            {
-                                Btn_TC_connect.IsEnabled = false;
-                                Btn_TC_connect.Content = "連線中";
-
-                            }));
 
                             // 傳送連線指令
                             SP_C.Write(@"z"); // 檢查是不是DHC的裝置
@@ -260,25 +242,6 @@ namespace MultithreadingDemo
                     Console.WriteLine("ERROR拔出");
                 }
             }
-        }
-
-        void BW_Initialize() // BackgroundWorker 設定
-        {
-            bwA.WorkerSupportsCancellation = true;
-            bwA.DoWork += new DoWorkEventHandler(bwA_DoWork);
-            bwA.ProgressChanged += new ProgressChangedEventHandler(bwA_ProgressChanged);
-
-            bwB.WorkerSupportsCancellation = true;
-            bwB.DoWork += new DoWorkEventHandler(bwB_DoWork);
-            bwB.ProgressChanged += new ProgressChangedEventHandler(bwB_ProgressChanged);
-
-            bwC.WorkerSupportsCancellation = true;
-            bwC.DoWork += new DoWorkEventHandler(bwC_DoWork);
-            bwC.ProgressChanged += new ProgressChangedEventHandler(bwC_ProgressChanged);
-
-            bwSR.WorkerSupportsCancellation = true;
-            bwSR.DoWork += new DoWorkEventHandler(bwSR_DoWork);
-            bwSR.ProgressChanged += new ProgressChangedEventHandler(bwSR_ProgressChanged);
         }
 
         #region BackgroundWorker : A
@@ -379,14 +342,8 @@ namespace MultithreadingDemo
                 {
                     PB_TA.Value = e.ProgressPercentage;
                 }
-                if (CPS_A == ComPortStatus.Connected && CB_TA.IsEnabled == true) // 連線中, 關閉下拉式選單
-                {
-                    CB_TA.IsEnabled = false;
-                }
                 if (e.ProgressPercentage == 999) // 達成斷線條件
                 {
-                    Btn_TA_connect.IsEnabled = true;
-
                     if (SP_A.IsOpen)
                     {
                         try
@@ -403,8 +360,6 @@ namespace MultithreadingDemo
 
                             // UI 更新
                             PB_TA.Value = 0;
-                            Btn_TA_connect.Content = "連線";
-                            CB_TA.IsEnabled = true;
                         }
                         catch (IOException ex)
                         {
@@ -514,14 +469,8 @@ namespace MultithreadingDemo
                 {
                     PB_TB.Value = e.ProgressPercentage;
                 }
-                if (CPS_B == ComPortStatus.Connected && CB_TB.IsEnabled == true) // 連線中, 關閉下拉式選單
-                {
-                    CB_TB.IsEnabled = false;
-                }
                 if (e.ProgressPercentage == 999) // 達成斷線條件
                 {
-                    Btn_TB_connect.IsEnabled = true;
-
                     if (SP_B.IsOpen)
                     {
                         try
@@ -538,8 +487,6 @@ namespace MultithreadingDemo
 
                             // UI 更新
                             PB_TB.Value = 0;
-                            Btn_TB_connect.Content = "連線";
-                            CB_TB.IsEnabled = true;
                         }
                         catch (IOException ex)
                         {
@@ -649,14 +596,8 @@ namespace MultithreadingDemo
                 {
                     PB_TC.Value = e.ProgressPercentage;
                 }
-                if (CPS_C == ComPortStatus.Connected && CB_TC.IsEnabled == true) // 連線中, 關閉下拉式選單
-                {
-                    CB_TC.IsEnabled = false;
-                }
                 if (e.ProgressPercentage == 999) // 達成斷線條件
                 {
-                    Btn_TC_connect.IsEnabled = true;
-
                     if (SP_C.IsOpen)
                     {
                         try
@@ -673,8 +614,6 @@ namespace MultithreadingDemo
 
                             // UI 更新
                             PB_TC.Value = 0;
-                            Btn_TC_connect.Content = "連線";
-                            CB_TC.IsEnabled = true;
                         }
                         catch (IOException ex)
                         {
@@ -688,10 +627,11 @@ namespace MultithreadingDemo
         #endregion
 
         #region BackgroundWorker : 共享資源
+        // 每0.2秒執行一次
 
         void bwSR_DoWork(object sender, DoWorkEventArgs e)
         {
-            for (;;)
+            while(true)
             {
                 if(bwSR.CancellationPending)
                 {
@@ -712,7 +652,7 @@ namespace MultithreadingDemo
                         }
 
                         bwSR.ReportProgress(0); // 更新共享資源位置
-                        Thread.Sleep(200);
+                        Thread.Sleep(200); // 每0.2秒執行一次
                     }
                     catch
                     {
@@ -733,8 +673,9 @@ namespace MultithreadingDemo
 
         #endregion
 
-        void BW_Close() // 關掉所有BackgroundWorker
+        void Window_Closing(object sender, CancelEventArgs e)
         {
+            // 關掉所有BackgroundWorker
             bwA.CancelAsync();
             bwB.CancelAsync();
             bwC.CancelAsync();
@@ -749,20 +690,14 @@ namespace MultithreadingDemo
             bwB.Dispose();
             bwC.Dispose();
             bwSR.Dispose();
-        } 
-
-        void Window_Closing(object sender, CancelEventArgs e)
-        {
-            BW_Close();
         }
 
         private void Btn_Start_Click(object sender, RoutedEventArgs e)
         {
             if((String)Btn_Start.Content == "Start") // 按下start
             {
-                // 執行背景BackgroundWorker : 共享資源、ComPort偵測、自動連線
+                // 執行背景BackgroundWorker : 共享資源
                 bwSR.WorkerReportsProgress = true;
-                
                 bwSR.RunWorkerAsync();
 
                 // UI 更新
@@ -770,14 +705,6 @@ namespace MultithreadingDemo
                 {
                     Btn_Start.Content = "Reset";
                     SP_Mode.IsEnabled = false;
-
-                    // 開啟各 BackgroundWorker 連線功能
-                    CB_TA.IsEnabled = true;
-                    CB_TB.IsEnabled = true;
-                    CB_TC.IsEnabled = true;
-                    Btn_TA_connect.IsEnabled = true;
-                    Btn_TB_connect.IsEnabled = true;
-                    Btn_TC_connect.IsEnabled = true;
                 }));
             }
             else // 按下reset
