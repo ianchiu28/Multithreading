@@ -49,7 +49,7 @@ namespace MultithreadingDemo
         Queue<SharedResources> request = new Queue<SharedResources>();
 
         // ComPort端
-        enum ComPortStatus { Disconnect, Connected };
+        enum ComPortStatus { Disconnect, Connected, Connecting};
         ComPortStatus CPS_A = ComPortStatus.Disconnect;
         ComPortStatus CPS_B = ComPortStatus.Disconnect;
         ComPortStatus CPS_C = ComPortStatus.Disconnect;
@@ -60,9 +60,9 @@ namespace MultithreadingDemo
 
         // 自動連線
         BackgroundWorker bwAuto = new BackgroundWorker();
-        string SP_A_Name;
-        string SP_B_Name;
-        string SP_C_Name;
+        string SP_A_Name = "";
+        string SP_B_Name = "";
+        string SP_C_Name = "";
         bool TA_justDisconnect = false;
         bool TB_justDisconnect = false;
         bool TC_justDisconnect = false;
@@ -97,7 +97,6 @@ namespace MultithreadingDemo
                 {
                     if (!ComPortBox.Contains(com))
                     {
-                        Console.WriteLine(com);
                         ComPortBox.Add(com);
                         CP_now = com;
                     }
@@ -106,10 +105,12 @@ namespace MultithreadingDemo
                 // 看哪個 Thread 未連接, 就分派給他
                 if (CPS_A == ComPortStatus.Disconnect && CP_now != "")
                 {
+                    CPS_A = ComPortStatus.Connecting;
                     if (!SP_A.IsOpen)
                     {
                         try
                         {
+                            //CPS_A = ComPortStatus.Connecting;
                             SP_A_Name = CP_now;
                             // 連接ComPort
                             SP_A.PortName = SP_A_Name;
@@ -145,11 +146,50 @@ namespace MultithreadingDemo
                         }
                     }
                 }
-                if (CPS_B == ComPortStatus.Disconnect)
+                else if (CPS_B == ComPortStatus.Disconnect && CP_now != "")
                 {
-                    
+                    CPS_B = ComPortStatus.Connecting;
+                    if (!SP_B.IsOpen)
+                    {
+                        try
+                        {
+                            //CPS_B = ComPortStatus.Connecting;
+                            SP_B_Name = CP_now;
+                            // 連接ComPort
+                            SP_B.PortName = SP_B_Name;
+                            SP_B.BaudRate = 9600;
+                            SP_B.DataBits = 8;
+                            SP_B.Parity = System.IO.Ports.Parity.None;
+                            SP_B.StopBits = System.IO.Ports.StopBits.One;
+                            SP_B.Encoding = Encoding.ASCII;//傳輸編碼方式
+                            SP_B.Open();
+                            SP_B.DtrEnable = true;
+
+                            // 執行 BackgroundWorker
+                            if (bwB.IsBusy != true)
+                            {
+                                bwB.WorkerReportsProgress = true;
+                                bwB.RunWorkerAsync();
+                            }
+
+                            this.Dispatcher.BeginInvoke((Action)(delegate
+                            {
+                                Btn_TB_connect.IsEnabled = false;
+                                Btn_TB_connect.Content = "連線中";
+
+                            }));
+
+                            // 傳送連線指令
+                            SP_B.Write(@"z"); // 檢查是不是DHC的裝置
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Windows.MessageBox.Show("通訊埠不存在，請檢查是否尚未開啟治具上的USB開關?\n\n如果已開啟的話''請重複一次USB關閉再開啟''\n\n\n" + ex.ToString());
+                            //Thread.Sleep(1000);
+                        }
+                    }
                 }
-                if (CPS_C == ComPortStatus.Disconnect)
+                else if (CPS_C == ComPortStatus.Disconnect && CP_now != "")
                 {
                     
                 }
@@ -161,7 +201,20 @@ namespace MultithreadingDemo
             }
             else if (e.NewEvent.ClassPath.ClassName == "__InstanceDeletionEvent") // USB 拔出
             {
-                Console.WriteLine(" USB拔出");
+                if(CPS_A == ComPortStatus.Disconnect && SP_A_Name != "")
+                {
+                    // 移除 ComPortBox 內的 ComPort
+                    ComPortBox.Remove(SP_A_Name);
+                    Console.WriteLine("USB拔出: " + SP_A_Name);
+                    SP_A_Name = "";
+                }
+                else if(CPS_B == ComPortStatus.Disconnect && SP_B_Name != "")
+                {
+                    // 移除 ComPortBox 內的 ComPort
+                    ComPortBox.Remove(SP_B_Name);
+                    Console.WriteLine("USB拔出: "+SP_B_Name);
+                    SP_B_Name = "";
+                }
             }
 
             /*foreach (USBControllerDevice Device in USB.WhoUSBControllerDevice(e))
@@ -512,10 +565,6 @@ namespace MultithreadingDemo
                     {
                         try
                         {
-                            // 移除 ComPortBox 內的 ComPort
-                            ComPortBox.Remove(SP_A_Name);
-                            Console.Write(SP_A_Name);
-
                             // 關閉 BackgroundWorker
                             bwA.CancelAsync();
                             bwA.WorkerReportsProgress = false;
