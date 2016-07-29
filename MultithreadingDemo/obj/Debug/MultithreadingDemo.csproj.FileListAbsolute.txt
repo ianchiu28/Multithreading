@@ -110,6 +110,3 @@ D:\1. Ian Chiu\VS Project\Multithreading\MultithreadingDemo_\MultithreadingDemo\
 D:\1. Ian Chiu\VS Project\Multithreading\MultithreadingDemo_\MultithreadingDemo\obj\Debug\MultithreadingDemo.g.resources
 D:\1. Ian Chiu\VS Project\Multithreading\MultithreadingDemo_\MultithreadingDemo\obj\Debug\MultithreadingDemo.Properties.Resources.resources
 D:\1. Ian Chiu\VS Project\Multithreading\MultithreadingDemo_\MultithreadingDemo\obj\Debug\MultithreadingDemo.csproj.GenerateResource.Cache
-D:\1. Ian Chiu\VS Project\Multithreading\Backup\7. MultithreadingDemo_USB_Detect_A&B\MultithreadingDemo\bin\Debug\MultithreadingDemo.exe.config
-D:\1. Ian Chiu\VS Project\Multithreading\Backup\7. MultithreadingDemo_USB_Detect_A&B\MultithreadingDemo\obj\Debug\MultithreadingDemo.exe
-D:\1. Ian Chiu\VS Project\Multithreading\Backup\7. MultithreadingDemo_USB_Detect_A&B\MultithreadingDemo\obj\Debug\MultithreadingDemo.pdb
