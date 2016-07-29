@@ -33,7 +33,7 @@
         <ComboBox x:Name="CB_TA" HorizontalAlignment="Left" Margin="18,160,0,0" VerticalAlignment="Top" Width="120" Height="24" IsEnabled="False"/>
         <ComboBox x:Name="CB_TC" HorizontalAlignment="Left" Margin="18,240,0,0" VerticalAlignment="Top" Width="120" Height="24" IsEnabled="False"/>
         <Button x:Name="Btn_TA_connect" Content="連線" HorizontalAlignment="Left" Margin="165,160,0,0" VerticalAlignment="Top" Width="75" Click="Btn_TA_connect_Click" IsEnabled="False"/>
-        <Button x:Name="Btn_TB_connect" Content="連線" HorizontalAlignment="Left" Margin="165,200,0,0" VerticalAlignment="Top" Width="75" IsEnabled="False"/>
+        <Button x:Name="Btn_TB_connect" Content="連線" HorizontalAlignment="Left" Margin="165,200,0,0" VerticalAlignment="Top" Width="75" IsEnabled="False" Click="Btn_TB_connect_Click"/>
         <Button x:Name="Btn_TC_connect" Content="連線" HorizontalAlignment="Left" Margin="165,240,0,0" VerticalAlignment="Top" Width="75" IsEnabled="False"/>
         <Ellipse Fill="#FFF10505" HorizontalAlignment="Left" Height="150" Margin="406,138,0,0" Stroke="Black" VerticalAlignment="Top" Width="5"/>
         <Ellipse Fill="#FFF10505" HorizontalAlignment="Left" Height="150" Margin="472,138,0,0" Stroke="Black" VerticalAlignment="Top" Width="5"/>
