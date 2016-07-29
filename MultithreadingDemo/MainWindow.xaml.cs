@@ -21,8 +21,6 @@ namespace MultithreadingDemo
         private enum SharedResources { Free, A, B, C };
         private SharedResources SR = SharedResources.Free;
         private BackgroundWorker bwSR = new BackgroundWorker();
-
-        // 分派共享資源
         private Queue<SharedResources> request = new Queue<SharedResources>();
 
         // ComPort端
@@ -93,20 +91,17 @@ namespace MultithreadingDemo
             if (e.NewEvent.ClassPath.ClassName == "__InstanceCreationEvent") // USB 插入
             {
                 // 偵測現在是哪個ComPort進來
-                //******string CP_now = "";
                 foreach (var com in SerialPort.GetPortNames())
                 {
                     if (!ComPortBox.Contains(com))
                     {
                         ComPortBox.Add(com);
-                        //******CP_now = com;
                         ComPortQ.Enqueue(com);
                         Console.WriteLine("USB插入: " + com);
                     }
                 }
 
                 // 看哪個 Thread 未連接, 就分派給他
-                //******if (CPS_A == ComPortStatus.Disconnect && CP_now != "")
                 if (CPS_A == ComPortStatus.Disconnect && ComPortQ.Count != 0)
                 {
                     CPS_A = ComPortStatus.Connecting;
@@ -140,7 +135,6 @@ namespace MultithreadingDemo
                         catch (Exception ex)
                         {
                             System.Windows.MessageBox.Show("通訊埠不存在，請檢查是否尚未開啟治具上的USB開關?\n\n如果已開啟的話''請重複一次USB關閉再開啟''\n\n\n" + ex.ToString());
-                            //Thread.Sleep(1000);
                         }
                     }
                 }
@@ -176,7 +170,6 @@ namespace MultithreadingDemo
                         catch (Exception ex)
                         {
                             System.Windows.MessageBox.Show("通訊埠不存在，請檢查是否尚未開啟治具上的USB開關?\n\n如果已開啟的話''請重複一次USB關閉再開啟''\n\n\n" + ex.ToString());
-                            //Thread.Sleep(1000);
                         }
                     }
                 }
@@ -212,15 +205,13 @@ namespace MultithreadingDemo
                         catch (Exception ex)
                         {
                             System.Windows.MessageBox.Show("通訊埠不存在，請檢查是否尚未開啟治具上的USB開關?\n\n如果已開啟的話''請重複一次USB關閉再開啟''\n\n\n" + ex.ToString());
-                            //Thread.Sleep(1000);
                         }
                     }
                 }
                 else
                 {
-                    Console.WriteLine("All threads are busy!!");
+                    Console.WriteLine("All threads are busy or ComPortQ is null");
                 }
-                //******Console.WriteLine("USB插入");
             }
             else if (e.NewEvent.ClassPath.ClassName == "__InstanceDeletionEvent") // USB 拔出
             {
@@ -250,7 +241,43 @@ namespace MultithreadingDemo
                 }
                 else
                 {
-                    Console.WriteLine("ERROR拔出");
+                    Console.WriteLine("非正常USB拔出");
+                    // Thread A 偵測                    
+                    try
+                    {
+                        bwA.CancelAsync();
+                        bwA.RunWorkerAsync();
+                    }
+                    catch
+                    {
+                        Console.WriteLine("Thread A 中止");
+                        if (SP_A.IsOpen)
+                        {
+                            try
+                            {
+                                // 關閉 BackgroundWorker
+                                bwA.CancelAsync();
+                                bwA.WorkerReportsProgress = false;
+                                bwA.Dispose();
+
+                                // 關閉 ComPort
+                                CPS_A = ComPortStatus.Disconnect;
+                                ComPortBox.Remove(SP_A_Name);
+                                SP_A_Name = "";
+                                //SP_A.Close();
+
+                                // UI 更新
+                                this.Dispatcher.BeginInvoke((Action)(delegate
+                                {
+                                    PB_TA.Value = 0;
+                                }));                                
+                            }
+                            catch (IOException ex)
+                            {
+                                System.Windows.MessageBox.Show("通訊埠不存在，請檢查是否已先行關閉治具上的USB開關?\n\n\n" + ex.ToString());
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -261,9 +288,9 @@ namespace MultithreadingDemo
         {
             int i = 0;
             //耗時作業
-            while(i <= 100)
+            while (i <= 100)
             {
-                if(bwA.CancellationPending)
+                if (bwA.CancellationPending)
                 {
                     e.Cancel = true;
                     break;
@@ -272,7 +299,7 @@ namespace MultithreadingDemo
                 {
                     try
                     {
-                        if(i < 20) // 連接ComPort階段
+                        if (i < 20) // 連接ComPort階段
                         {
                             if (i < 15) // USB一偵測即跑Progress Bar
                             {
@@ -343,7 +370,10 @@ namespace MultithreadingDemo
                     }
                 }
             }
-            bwA.ReportProgress(999);
+            if(i == 101) // 達成斷線條件
+            {
+                bwA.ReportProgress(999);
+            }
         }
 
         private void bwA_ProgressChanged(object sender, ProgressChangedEventArgs e)
