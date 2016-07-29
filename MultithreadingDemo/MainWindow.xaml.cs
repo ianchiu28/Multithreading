@@ -17,6 +17,7 @@ using System.Threading;
 using System.IO.Ports;
 using System.IO;
 using System.Diagnostics;
+using System.Management;
 
 
 /**
@@ -66,11 +67,111 @@ namespace MultithreadingDemo
         bool TB_justDisconnect = false;
         bool TC_justDisconnect = false;
 
+        //USB隨插即用
+        USB ezUSB = new USB();
+        List<string> ComPortBox = new List<string>();
+
         public MainWindow()
         {
             InitializeComponent();
    
             BW_Initialize();
+            ezUSB.AddUSBEventWatcher(USBEventHandler, USBEventHandler, new TimeSpan(0, 0, 3));
+            foreach (var com in SerialPort.GetPortNames())
+            {
+                if (!ComPortBox.Contains(com))
+                {
+                    Console.WriteLine(com);
+                    ComPortBox.Add(com);
+                }
+            }
+        }
+
+        private void USBEventHandler(Object sender, EventArrivedEventArgs e)
+        {
+            if (e.NewEvent.ClassPath.ClassName == "__InstanceCreationEvent") // USB 插入
+            {
+                // 偵測現在是哪個ComPort進來
+                string CP_now = "";
+                foreach (var com in SerialPort.GetPortNames())
+                {
+                    if (!ComPortBox.Contains(com))
+                    {
+                        Console.WriteLine(com);
+                        ComPortBox.Add(com);
+                        CP_now = com;
+                    }
+                }
+
+                // 看哪個 Thread 未連接, 就分派給他
+                if (CPS_A == ComPortStatus.Disconnect && CP_now != "")
+                {
+                    if (!SP_A.IsOpen)
+                    {
+                        try
+                        {
+                            SP_A_Name = CP_now;
+                            // 連接ComPort
+                            SP_A.PortName = SP_A_Name;
+                            SP_A.BaudRate = 9600;
+                            SP_A.DataBits = 8;
+                            SP_A.Parity = System.IO.Ports.Parity.None;
+                            SP_A.StopBits = System.IO.Ports.StopBits.One;
+                            SP_A.Encoding = Encoding.ASCII;//傳輸編碼方式
+                            SP_A.Open();
+                            SP_A.DtrEnable = true;
+
+                            // 執行 BackgroundWorker
+                            if (bwA.IsBusy != true)
+                            {
+                                bwA.WorkerReportsProgress = true;
+                                bwA.RunWorkerAsync();
+                            }
+
+                            this.Dispatcher.BeginInvoke((Action)(delegate
+                            {
+                                Btn_TA_connect.IsEnabled = false;
+                                Btn_TA_connect.Content = "連線中";
+                                
+                            }));
+
+                            // 傳送連線指令
+                            SP_A.Write(@"z"); // 檢查是不是DHC的裝置
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Windows.MessageBox.Show("通訊埠不存在，請檢查是否尚未開啟治具上的USB開關?\n\n如果已開啟的話''請重複一次USB關閉再開啟''\n\n\n" + ex.ToString());
+                            //Thread.Sleep(1000);
+                        }
+                    }
+                }
+                if (CPS_B == ComPortStatus.Disconnect)
+                {
+                    
+                }
+                if (CPS_C == ComPortStatus.Disconnect)
+                {
+                    
+                }
+                else
+                {
+                    Console.WriteLine("SCAN ERROR " + CP_now);
+                }
+                Console.WriteLine("USB插入: " + CP_now);
+            }
+            else if (e.NewEvent.ClassPath.ClassName == "__InstanceDeletionEvent") // USB 拔出
+            {
+                Console.WriteLine(" USB拔出");
+            }
+
+            /*foreach (USBControllerDevice Device in USB.WhoUSBControllerDevice(e))
+            {
+                this.Dispatcher.BeginInvoke((Action)(delegate
+                {
+                    Console.WriteLine("\tAntecedent：" + Device.Antecedent + "\r\n");
+                    Console.WriteLine("\tDependent：" + Device.Dependent + "\r\n");
+                }));
+            }*/
         }
 
         void BW_Initialize() // BackgroundWorker 設定
@@ -271,6 +372,7 @@ namespace MultithreadingDemo
                 {
                     if(!CB_TA.Items.Contains(com))
                     {
+                        Console.WriteLine(com);
                         CB_TA.Items.Add(com);
                     }
                 }
@@ -410,6 +512,10 @@ namespace MultithreadingDemo
                     {
                         try
                         {
+                            // 移除 ComPortBox 內的 ComPort
+                            ComPortBox.Remove(SP_A_Name);
+                            Console.Write(SP_A_Name);
+
                             // 關閉 BackgroundWorker
                             bwA.CancelAsync();
                             bwA.WorkerReportsProgress = false;
@@ -725,13 +831,13 @@ namespace MultithreadingDemo
                 // 執行背景BackgroundWorker : 共享資源、ComPort偵測、自動連線
                 bwC.WorkerReportsProgress = true; //**
                 bwSR.WorkerReportsProgress = true;
-                bwCP.WorkerReportsProgress = true;
-                bwAuto.WorkerReportsProgress = true;
+                //bwCP.WorkerReportsProgress = true;
+                //bwAuto.WorkerReportsProgress = true;
                 
                 bwC.RunWorkerAsync(); //**
                 bwSR.RunWorkerAsync();
-                bwCP.RunWorkerAsync();
-                bwAuto.RunWorkerAsync();
+                //bwCP.RunWorkerAsync();
+                //bwAuto.RunWorkerAsync();
 
                 // UI 更新
                 this.Dispatcher.Invoke((Action)(delegate ()
