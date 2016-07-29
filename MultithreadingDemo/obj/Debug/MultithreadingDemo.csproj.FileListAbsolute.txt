@@ -1,0 +1,28 @@
+D:\Ian Chiu\VS Project\MultithreadingDemo\MultithreadingDemo\bin\Debug\MultithreadingDemo.exe.config
+D:\Ian Chiu\VS Project\MultithreadingDemo\MultithreadingDemo\bin\Debug\MultithreadingDemo.exe
+D:\Ian Chiu\VS Project\MultithreadingDemo\MultithreadingDemo\bin\Debug\MultithreadingDemo.pdb
+D:\Ian Chiu\VS Project\MultithreadingDemo\MultithreadingDemo\obj\Debug\MultithreadingDemo.csprojResolveAssemblyReference.cache
+D:\Ian Chiu\VS Project\MultithreadingDemo\MultithreadingDemo\obj\Debug\MainWindow.g.cs
+D:\Ian Chiu\VS Project\MultithreadingDemo\MultithreadingDemo\obj\Debug\App.g.cs
+D:\Ian Chiu\VS Project\MultithreadingDemo\MultithreadingDemo\obj\Debug\MultithreadingDemo_MarkupCompile.cache
+D:\Ian Chiu\VS Project\MultithreadingDemo\MultithreadingDemo\obj\Debug\MultithreadingDemo_MarkupCompile.lref
+D:\Ian Chiu\VS Project\MultithreadingDemo\MultithreadingDemo\obj\Debug\MainWindow.baml
+D:\Ian Chiu\VS Project\MultithreadingDemo\MultithreadingDemo\obj\Debug\MultithreadingDemo.g.resources
+D:\Ian Chiu\VS Project\MultithreadingDemo\MultithreadingDemo\obj\Debug\MultithreadingDemo.Properties.Resources.resources
+D:\Ian Chiu\VS Project\MultithreadingDemo\MultithreadingDemo\obj\Debug\MultithreadingDemo.csproj.GenerateResource.Cache
+D:\Ian Chiu\VS Project\MultithreadingDemo\MultithreadingDemo\obj\Debug\MultithreadingDemo.exe
+D:\Ian Chiu\VS Project\MultithreadingDemo\MultithreadingDemo\obj\Debug\MultithreadingDemo.pdb
+D:\1. Ian Chiu\VS Project\MultithreadingDemo\MultithreadingDemo\bin\Debug\MultithreadingDemo.exe.config
+D:\1. Ian Chiu\VS Project\MultithreadingDemo\MultithreadingDemo\obj\Debug\MultithreadingDemo.exe
+D:\1. Ian Chiu\VS Project\MultithreadingDemo\MultithreadingDemo\obj\Debug\MultithreadingDemo.pdb
+D:\1. Ian Chiu\VS Project\MultithreadingDemo\MultithreadingDemo\bin\Debug\MultithreadingDemo.exe
+D:\1. Ian Chiu\VS Project\MultithreadingDemo\MultithreadingDemo\bin\Debug\MultithreadingDemo.pdb
+D:\1. Ian Chiu\VS Project\MultithreadingDemo\MultithreadingDemo\obj\Debug\MultithreadingDemo.csprojResolveAssemblyReference.cache
+D:\1. Ian Chiu\VS Project\MultithreadingDemo\MultithreadingDemo\obj\Debug\MainWindow.g.cs
+D:\1. Ian Chiu\VS Project\MultithreadingDemo\MultithreadingDemo\obj\Debug\App.g.cs
+D:\1. Ian Chiu\VS Project\MultithreadingDemo\MultithreadingDemo\obj\Debug\MultithreadingDemo_MarkupCompile.cache
+D:\1. Ian Chiu\VS Project\MultithreadingDemo\MultithreadingDemo\obj\Debug\MultithreadingDemo_MarkupCompile.lref
+D:\1. Ian Chiu\VS Project\MultithreadingDemo\MultithreadingDemo\obj\Debug\MainWindow.baml
+D:\1. Ian Chiu\VS Project\MultithreadingDemo\MultithreadingDemo\obj\Debug\MultithreadingDemo.g.resources
+D:\1. Ian Chiu\VS Project\MultithreadingDemo\MultithreadingDemo\obj\Debug\MultithreadingDemo.Properties.Resources.resources
+D:\1. Ian Chiu\VS Project\MultithreadingDemo\MultithreadingDemo\obj\Debug\MultithreadingDemo.csproj.GenerateResource.Cache
