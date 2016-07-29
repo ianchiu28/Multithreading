@@ -46,12 +46,12 @@ namespace MultithreadingDemo
         {
             InitializeComponent();
 
-            BW_Initialize();
-            USB_Initialize();
-
             // 執行背景BackgroundWorker : 共享資源
             bwSR.WorkerReportsProgress = true;
             bwSR.RunWorkerAsync();
+
+            BW_Initialize();
+            USB_Initialize();
         }
 
         // BackgroundWorker 設定
