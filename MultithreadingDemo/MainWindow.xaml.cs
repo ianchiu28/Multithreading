@@ -127,15 +127,16 @@ namespace MultithreadingDemo
                             {
                                 bwA.WorkerReportsProgress = true;
                                 bwA.RunWorkerAsync();
+                                Dispatcher.BeginInvoke((Action)delegate ()
+                                {
+                                    btn_Disconnect_A.IsEnabled = true;
+                                    btn_Disconnect_A.Content = "中斷連線";
+                                });
                             }
 
                             // 傳送連線指令
                             SP_A.Write(@"z"); // 檢查是不是DHC的裝置
-                        }
-                        catch (Exception ex)
-                        {
-                            System.Windows.MessageBox.Show("通訊埠不存在，請檢查是否尚未開啟治具上的USB開關?\n\n如果已開啟的話''請重複一次USB關閉再開啟''\n\n\n" + ex.ToString());
-                        }
+                        } catch {}
                     }
                 }
                 else if (CPS_B == ComPortStatus.Disconnect && ComPortQ.Count != 0)
@@ -161,16 +162,17 @@ namespace MultithreadingDemo
                             if (bwB.IsBusy != true)
                             {
                                 bwB.WorkerReportsProgress = true;
-                                bwB.RunWorkerAsync(); 
+                                bwB.RunWorkerAsync();
+                                Dispatcher.BeginInvoke((Action)delegate ()
+                                {
+                                    btn_Disconnect_B.IsEnabled = true;
+                                    btn_Disconnect_B.Content = "中斷連線";
+                                });
                             }
 
                             // 傳送連線指令
                             SP_B.Write(@"z"); // 檢查是不是DHC的裝置
-                        }
-                        catch (Exception ex)
-                        {
-                            System.Windows.MessageBox.Show("通訊埠不存在，請檢查是否尚未開啟治具上的USB開關?\n\n如果已開啟的話''請重複一次USB關閉再開啟''\n\n\n" + ex.ToString());
-                        }
+                        } catch { }
                     }
                 }
                 else if (CPS_C == ComPortStatus.Disconnect && ComPortQ.Count != 0)
@@ -197,20 +199,28 @@ namespace MultithreadingDemo
                             {
                                 bwC.WorkerReportsProgress = true;
                                 bwC.RunWorkerAsync();
+                                Dispatcher.BeginInvoke((Action)delegate ()
+                                {
+                                    btn_Disconnect_C.IsEnabled = true;
+                                    btn_Disconnect_C.Content = "中斷連線";
+                                });
                             }
 
                             // 傳送連線指令
                             SP_C.Write(@"z"); // 檢查是不是DHC的裝置
-                        }
-                        catch (Exception ex)
-                        {
-                            System.Windows.MessageBox.Show("通訊埠不存在，請檢查是否尚未開啟治具上的USB開關?\n\n如果已開啟的話''請重複一次USB關閉再開啟''\n\n\n" + ex.ToString());
-                        }
+                        } catch { }
                     }
                 }
                 else
                 {
-                    Console.WriteLine("All threads are busy or ComPortQ is null");
+                    if(ComPortQ.Count == 0)
+                    {
+                        Console.WriteLine("ComPortQ = 0");
+                    }
+                    else
+                    {
+                        Console.WriteLine("All threads are busy");
+                    }
                 }
             }
             else if (e.NewEvent.ClassPath.ClassName == "__InstanceDeletionEvent") // USB 拔出
@@ -241,9 +251,23 @@ namespace MultithreadingDemo
                 }
                 else
                 {
-                    Console.WriteLine("非正常USB拔出");
+                    bwA.CancelAsync();
+                    bwB.CancelAsync();
+                    bwC.CancelAsync();
+                
+
+                    Console.WriteLine("USB異常拔出");
+                    MessageBox.Show("偵測到USB異常拔除\n請拔除所有USB後\n再按下確定以重新啟動程式");
+
+                    // 重起再開
+                    System.Diagnostics.Process.Start(Application.ResourceAssembly.Location);
+                    Dispatcher.BeginInvoke((Action)delegate ()
+                    {
+                        Application.Current.Shutdown();
+                    });
+
                     // Thread A 偵測                    
-                    try
+                    /*try
                     {
                         bwA.CancelAsync();
                         bwA.RunWorkerAsync();
@@ -277,7 +301,7 @@ namespace MultithreadingDemo
                                 System.Windows.MessageBox.Show("通訊埠不存在，請檢查是否已先行關閉治具上的USB開關?\n\n\n" + ex.ToString());
                             }
                         }
-                    }
+                    }*/
                 }
             }
         }
@@ -358,7 +382,6 @@ namespace MultithreadingDemo
                                     request.Enqueue(SharedResources.A);
                                     Console.WriteLine("Request! A");
                                 }
-
                                 Thread.Sleep(200);
                             }
                         }
@@ -402,11 +425,9 @@ namespace MultithreadingDemo
 
                             // UI 更新
                             PB_TA.Value = 0;
-                        }
-                        catch (IOException ex)
-                        {
-                            System.Windows.MessageBox.Show("通訊埠不存在，請檢查是否已先行關閉治具上的USB開關?\n\n\n" + ex.ToString());
-                        }
+                            btn_Disconnect_A.Content = "已斷線";
+                            btn_Disconnect_A.IsEnabled = false;
+                        } catch { }
                     }
                 }
             }));
@@ -502,7 +523,10 @@ namespace MultithreadingDemo
                     }
                 }
             }
-            bwB.ReportProgress(999);
+            if (i == 101) // 達成斷線條件
+            {
+                bwB.ReportProgress(999);
+            }            
         }
 
         private void bwB_ProgressChanged(object sender, ProgressChangedEventArgs e)
@@ -531,11 +555,9 @@ namespace MultithreadingDemo
 
                             // UI 更新
                             PB_TB.Value = 0;
-                        }
-                        catch (IOException ex)
-                        {
-                            System.Windows.MessageBox.Show("通訊埠不存在，請檢查是否已先行關閉治具上的USB開關?\n\n\n" + ex.ToString());
-                        }
+                            btn_Disconnect_B.Content = "已斷線";
+                            btn_Disconnect_B.IsEnabled = false;
+                        } catch {}
                     }
                 }
             }));            
@@ -631,7 +653,10 @@ namespace MultithreadingDemo
                     }
                 }
             }
-            bwC.ReportProgress(999);
+            if (i == 101) // 達成斷線條件
+            {
+                bwC.ReportProgress(999);
+            }
         }
 
         private void bwC_ProgressChanged(object sender, ProgressChangedEventArgs e)
@@ -660,11 +685,9 @@ namespace MultithreadingDemo
 
                             // UI 更新
                             PB_TC.Value = 0;
-                        }
-                        catch (IOException ex)
-                        {
-                            System.Windows.MessageBox.Show("通訊埠不存在，請檢查是否已先行關閉治具上的USB開關?\n\n\n" + ex.ToString());
-                        }
+                            btn_Disconnect_C.Content = "已斷線";
+                            btn_Disconnect_C.IsEnabled = false;
+                        } catch {}
                     }
                 }
             }));
@@ -740,6 +763,99 @@ namespace MultithreadingDemo
             // 重起再開
             System.Diagnostics.Process.Start(Application.ResourceAssembly.Location);
             Application.Current.Shutdown();
+        }
+
+        private void btn_Disconnect_A_Click(object sender, RoutedEventArgs e)
+        {
+            if (SP_A.IsOpen)
+            {
+                try
+                {
+                    // 關閉 BackgroundWorker
+                    bwA.CancelAsync();
+                    bwA.WorkerReportsProgress = false;
+                    bwA.Dispose();
+
+                    // 關閉 ComPort
+                    CPS_A = ComPortStatus.ThreadEnd;
+                    SP_A.Close();
+
+                    // UI 更新
+                    this.Dispatcher.BeginInvoke((Action)(delegate
+                    {
+                        PB_TA.Value = 0;
+                        btn_Disconnect_A.Content = "已斷線";
+                        btn_Disconnect_A.IsEnabled = false;
+                        SR = SharedResources.Free;
+                    }));
+                }
+                catch 
+                {
+                    Console.WriteLine("btn_dis failed");
+                }
+            }
+        }
+
+        private void btn_Disconnect_B_Click(object sender, RoutedEventArgs e)
+        {
+            if (SP_B.IsOpen)
+            {
+                try
+                {
+                    // 關閉 BackgroundWorker
+                    bwB.CancelAsync();
+                    bwB.WorkerReportsProgress = false;
+                    bwB.Dispose();
+
+                    // 關閉 ComPort
+                    CPS_B = ComPortStatus.ThreadEnd;
+                    SP_B.Close();
+
+                    // UI 更新
+                    this.Dispatcher.BeginInvoke((Action)(delegate
+                    {
+                        PB_TB.Value = 0;
+                        btn_Disconnect_B.Content = "已斷線";
+                        btn_Disconnect_B.IsEnabled = false;
+                        SR = SharedResources.Free;
+                    }));
+                }
+                catch
+                {
+                    Console.WriteLine("btn_dis failed");
+                }
+            }
+        }
+
+        private void btn_Disconnect_C_Click(object sender, RoutedEventArgs e)
+        {
+            if (SP_C.IsOpen)
+            {
+                try
+                {
+                    // 關閉 BackgroundWorker
+                    bwC.CancelAsync();
+                    bwC.WorkerReportsProgress = false;
+                    bwC.Dispose();
+
+                    // 關閉 ComPort
+                    CPS_C = ComPortStatus.ThreadEnd;
+                    SP_C.Close();
+
+                    // UI 更新
+                    this.Dispatcher.BeginInvoke((Action)(delegate
+                    {
+                        PB_TC.Value = 0;
+                        btn_Disconnect_C.Content = "已斷線";
+                        btn_Disconnect_C.IsEnabled = false;
+                        SR = SharedResources.Free;
+                    }));
+                }
+                catch
+                {
+                    Console.WriteLine("btn_dis failed");
+                }
+            }
         }
     }
 }

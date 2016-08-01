@@ -4,17 +4,17 @@
 winexe
 C#
 .cs
-D:\1. Ian Chiu\VS Project\Multithreading\MultithreadingDemo\obj\Debug\
+D:\1. Ian Chiu\VS Project\Multithreading\MultithreadingDemo\obj\Release\
 MultithreadingDemo
 none
 false
-DEBUG;TRACE
+TRACE
 D:\1. Ian Chiu\VS Project\Multithreading\MultithreadingDemo\App.xaml
 11151548125
 
-6428093534
+102025011725
 14-648916988
 MainWindow.xaml;
 
-False
+True
 

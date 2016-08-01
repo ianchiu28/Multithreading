@@ -10,13 +10,13 @@
     <Grid>
         <Label x:Name="LB_SR" Content="共用資源目前在 :" HorizontalAlignment="Left" Margin="16,10,0,0" VerticalAlignment="Top" Width="105"/>
         <Label x:Name="LB_SharedResources" Content="Free" HorizontalAlignment="Left" Height="26" Margin="110,10,0,0" VerticalAlignment="Top" Width="64"/>
-        <Label x:Name="LB_TA" Content="Thread A" HorizontalAlignment="Left" Height="24" Margin="110,70,0,0" VerticalAlignment="Top" Width="70"/>
-        <Label x:Name="LB_TB" Content="Thread B" HorizontalAlignment="Left" Height="24" Margin="360,70,0,0" VerticalAlignment="Top" Width="70"/>
-        <Label x:Name="LB_TC" Content="Thread C" HorizontalAlignment="Left" Height="24" Margin="610,70,0,0" VerticalAlignment="Top" Width="70"/>
+        <Label x:Name="LB_TA" Content="Thread A" HorizontalAlignment="Left" Height="24" Margin="110,52,0,0" VerticalAlignment="Top" Width="70"/>
+        <Label x:Name="LB_TB" Content="Thread B" HorizontalAlignment="Left" Height="24" Margin="360,52,0,0" VerticalAlignment="Top" Width="70"/>
+        <Label x:Name="LB_TC" Content="Thread C" HorizontalAlignment="Left" Height="24" Margin="610,52,0,0" VerticalAlignment="Top" Width="70"/>
         <ProgressBar x:Name="PB_TA" HorizontalAlignment="Left" Height="24" Margin="30,120,0,0" VerticalAlignment="Top" Width="228" RenderTransformOrigin="0.5,0.5"/>
         <ProgressBar x:Name="PB_TB" HorizontalAlignment="Left" Height="24" Margin="280,120,0,0" VerticalAlignment="Top" Width="228"/>
         <ProgressBar x:Name="PB_TC" HorizontalAlignment="Left" Height="24" Margin="530,120,0,0" VerticalAlignment="Top" Width="228"/>
-        <Button x:Name="Btn_Restart" Content="Restart" HorizontalAlignment="Left" Margin="707,10,0,0" VerticalAlignment="Top" Width="75" Click="Btn_Restart_Click"/>
+        <Button x:Name="Btn_Restart" Content="Restart" HorizontalAlignment="Left" Margin="690,15,0,0" VerticalAlignment="Top" Width="75" Click="Btn_Restart_Click"/>
         <Label x:Name="LB_20_50_A" Content="  連接  ↑ 共享資源 ↑     自己內部運算" HorizontalAlignment="Left" Margin="30,150,0,0" VerticalAlignment="Top" Width="228" Height="28"/>
         <Label x:Name="LB_20_50_B" Content="  連接  ↑ 共享資源 ↑     自己內部運算" HorizontalAlignment="Left" Margin="280,150,0,0" VerticalAlignment="Top" Width="228" Height="28"/>
         <Label x:Name="LB_20_50_C" Content="  連接  ↑ 共享資源 ↑     自己內部運算" HorizontalAlignment="Left" Margin="530,150,0,0" VerticalAlignment="Top" Width="228" Height="28"/>
@@ -26,6 +26,9 @@
         <Ellipse Fill="#FFF10505" HorizontalAlignment="Left" Height="25" Margin="390,120,0,0" Stroke="Black" VerticalAlignment="Top" Width="5"/>
         <Ellipse Fill="#FFF10505" HorizontalAlignment="Left" Height="25" Margin="575,120,0,0" Stroke="Black" VerticalAlignment="Top" Width="5"/>
         <Ellipse Fill="#FFF10505" HorizontalAlignment="Left" Height="25" Margin="640,120,0,0" Stroke="Black" VerticalAlignment="Top" Width="5"/>
+        <Button x:Name="btn_Disconnect_A" Content="已斷線" HorizontalAlignment="Left" Margin="105,81,0,0" VerticalAlignment="Top" Width="75" IsEnabled="False" Click="btn_Disconnect_A_Click"/>
+        <Button x:Name="btn_Disconnect_B" Content="已斷線" HorizontalAlignment="Left" Margin="355,81,0,0" VerticalAlignment="Top" Width="75" IsEnabled="False" Click="btn_Disconnect_B_Click"/>
+        <Button x:Name="btn_Disconnect_C" Content="已斷線" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="605,81,0,0" IsEnabled="False" Click="btn_Disconnect_C_Click"/>
 
     </Grid>
 </Window>
